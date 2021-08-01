@@ -1,1 +1,1 @@
-# stm18-flask
+# EPAM LEARN Flask application
