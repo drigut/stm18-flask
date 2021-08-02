@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 # coding=UTF-8
 
-from flask import Flask, json
+import os
 import requests
+
+from flask import Flask, render_template, json, send_from_directory
+from flask_bootstrap import Bootstrap
 
 PEOPLE = 'https://swapi.dev/api/people/'
 
 app = Flask(__name__)
+Bootstrap(app)
+
+# TODO: Make connector to psql and write info to DB
+# def post_to_db():
+#     return pass
 
 
 def get_item(req):
@@ -39,20 +47,35 @@ def get_characters():
     return characters
 
 
-# TODO: Make connector to psql and write info to DB
-def post_to_db():
-    return pass
+@app.errorhandler(404)
+def page_not_found():
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error():
+    return render_template('500.html'), 500
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico')
 
 
 @app.route('/', methods=['GET'])
-def hello():
-    return 'Hello, Flask!'
+def index():
+    return render_template('index.html')
 
 
 @app.route('/people', methods=['GET'])
 def get_people():
     print(get_characters())
     return 'Done!'
+
+
+@app.route('/update-db', methods=['GET', 'POST'])
+def update_db():
+    return 404
 
 
 if __name__ == '__main__':
