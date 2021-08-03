@@ -1,31 +1,14 @@
-{% extends "bootstrap/base.html" %}
-{% block title %}SWAPI{% endblock %}
-{% block navbar %}
-<div class="navbar navbar-inverse" role="navigation">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/">SWAPI</a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="/people">People</a></li>
-                <li><a href="/starships">Starships</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-{% endblock %}
-{% block content %}
+{% extends 'base.html' %}
 
-<div class="container">
-    <div class="page-header">
-        <h1>Hello!</h1>
-    </div>
- </div>
+{% block content %}
+    <h1>{% block title %} Welcome to Flask {% endblock %}</h1>
+    {% for character in characters %}
+        <a href="{{ url_for('character', character_id=character['id']) }}">
+            <h2>{{ character['name'] }}</h2>
+        </a>
+        <a href="{{ url_for('edit', id=character['id']) }}">
+            <span class="badge badge-warning">Edit</span>
+        </a>
+        <hr>
+    {% endfor %}
 {% endblock %}

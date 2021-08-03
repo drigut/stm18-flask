@@ -2,59 +2,31 @@
 # coding=UTF-8
 
 import os
-import requests
+import sqlite3
 
-from flask import Flask, render_template, json, send_from_directory
+from flask import Flask, request, render_template, send_from_directory, url_for, flash, redirect
 from flask_bootstrap import Bootstrap
-
-PEOPLE = 'https://swapi.dev/api/people/'
+from werkzeug.exceptions import abort
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your secret key'
 Bootstrap(app)
 
-# TODO: Make connector to psql and write info to DB
-# def post_to_db():
-#     return pass
+
+def get_db_connection():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
-def get_item(req):
-    jsonData = json.dumps(requests.get(req).json())
-    return json.loads(jsonData)
-
-
-def get_characters():
-    characters = list()
-    count = get_item(PEOPLE)["count"]
-
-    while count > 0:
-        try:
-            characters.append(dict(
-                name=get_item(PEOPLE + str(count))["name"],
-                gender=get_item(PEOPLE + str(count))["gender"],
-                homeworld=get_item(get_item(PEOPLE + str(count))["homeworld"])["name"],
-                starships=[{'name': get_item(item)["name"],
-                            'model': get_item(item)["model"],
-                            'manufacturer': get_item(item)["manufacturer"],
-                            'cargo_capacity': get_item(item)["cargo_capacity"]}
-                           for item in get_item(PEOPLE + str(count))["starships"]]))
-
-            count -= 1
-
-        except KeyError:
-            count -= 1
-            pass
-
-    return characters
-
-
-@app.errorhandler(404)
-def page_not_found():
-    return render_template('404.html'), 404
-
-
-@app.errorhandler(500)
-def internal_server_error():
-    return render_template('500.html'), 500
+def get_character(character_id):
+    conn = get_db_connection()
+    character = conn.execute('SELECT * FROM PEOPLE WHERE ID = ?',
+                             (character_id,)).fetchone()
+    conn.close()
+    if character is None:
+        abort(404)
+    return character
 
 
 @app.route('/favicon.ico')
@@ -62,20 +34,71 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico')
 
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def index():
-    return render_template('index.html')
+    conn = get_db_connection()
+    characters = conn.execute('SELECT * FROM PEOPLE').fetchall()
+    conn.close()
+    return render_template('index.html', characters=characters)
 
 
-@app.route('/people', methods=['GET'])
-def get_people():
-    print(get_characters())
-    return 'Done!'
+@app.route('/<int:character_id>')
+def character(character_id):
+    character = get_character(character_id)
+    return render_template('character.html', character=character)
 
 
-@app.route('/update-db', methods=['GET', 'POST'])
-def update_db():
-    return 404
+@app.route('/create', methods=('GET', 'POST'))
+def create():
+    if request.method == 'POST':
+        name = request.form['name']
+        gender = request.form['gender']
+        homeworld = request.form['homeworld']
+
+        if not name:
+            flash('Name is required!')
+        else:
+            conn = get_db_connection()
+            conn.execute('INSERT INTO PEOPLE (NAME, GENDER, HOMEWORLD) VALUES (?, ?)',
+                         (name, gender, homeworld))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('index'))
+    return render_template('create.html')
+
+
+@app.route('/<int:id>/edit', methods=('GET', 'POST'))
+def edit(id):
+    character = get_character(id)
+
+    if request.method == 'POST':
+        name = request.form['name']
+        gender = request.form['gender']
+        homeworld = request.form['homeworld']
+
+        if not name:
+            flash('Name is required!')
+        else:
+            conn = get_db_connection()
+            conn.execute('UPDATE PEOPLE SET NAME = ?, GENDER = ?, HOMEWORLD = ?'
+                         ' WHERE ID = ?',
+                         (name, gender, homeworld, id))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('index'))
+
+    return render_template('edit.html', character=character)
+
+
+@app.route('/<int:id>/delete', methods=('POST',))
+def delete(id):
+    character = get_character(id)
+    conn = get_db_connection()
+    conn.execute('DELETE FROM PEOPLE WHERE ID = ?', (id,))
+    conn.commit()
+    conn.close()
+    flash('"{}" was successfully deleted!'.format(character['name']))
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':
