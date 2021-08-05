@@ -68,14 +68,14 @@ def update():
             name = get_value(PEOPLE + str(count))["name"]
             gender = get_value(PEOPLE + str(count))["gender"]
             homeworld = get_value(get_value(PEOPLE + str(count))["homeworld"])["name"]
-            # starships = [{'name': get_value(item)["name"],
-            #             'model': get_value(item)["model"],
-            #             'manufacturer': get_value(item)["manufacturer"],
-            #             'cargo_capacity': get_value(item)["cargo_capacity"]}
-            #            for item in get_value(key + str(count))["starships"]])
+            starships = [{'name': get_value(item)["name"],
+                        'model': get_value(item)["model"],
+                        'manufacturer': get_value(item)["manufacturer"],
+                        'cargo_capacity': get_value(item)["cargo_capacity"]}
+                       for item in get_value(key + str(count))["starships"]]
 
-            cur.execute("INSERT INTO PEOPLE (NAME, GENDER, HOMEWORLD) VALUES (?, ?, ?)",
-                        (name, gender, homeworld))
+            cur.execute("INSERT INTO PEOPLE (NAME, GENDER, HOMEWORLD, STARSHIPS) VALUES (?, ?, ?, ?)",
+                        (name, gender, homeworld, starships))
 
             count -= 1
 
