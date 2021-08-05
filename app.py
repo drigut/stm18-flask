@@ -3,12 +3,9 @@
 
 import os
 import sqlite3
-from datetime import time
-
 import requests
 
-from flask import Flask, request, render_template, send_from_directory, url_for, flash, redirect, json, Response, \
-    jsonify
+from flask import Flask, request, render_template, send_from_directory, url_for, flash, redirect, json
 from flask_bootstrap import Bootstrap
 from werkzeug.exceptions import abort
 
