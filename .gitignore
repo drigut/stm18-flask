@@ -6,5 +6,7 @@ venv
 *.retry
 *.iml
 *~
+/__pycache__/
 /database.db
 /database.db-journal
+requirements.txt
