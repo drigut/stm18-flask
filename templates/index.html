@@ -1,14 +1,18 @@
 {% extends 'base.html' %}
-
 {% block content %}
-    <h1>{% block title %} Welcome to SWAPI Flask application{% endblock %}</h1>
-    {% for character in characters %}
-        <a href="{{ url_for('character', character_id=character['id']) }}">
-            <h2>{{ character['name'] }}</h2>
-        </a>
-        <a href="{{ url_for('edit', id=character['id']) }}">
-            <span class="badge badge-warning">Edit</span>
-        </a>
-        <hr>
-    {% endfor %}
+    <div class="jumbotron text-center">
+    <h1>Welcome!</h1>
+        <p class="lead">This application is build on Python's Flask Framework and run by Gunicorn</p>
+    </div>
+    <br>
+    <div class="container">
+        <h2>Variant 9</h2>
+        <p>For a marketing campaign collect information about Star Wars universe using open API https://swapi.dev/ </p>
+        <p>Store the following data in the local database:</p>
+        <ul>
+            <li>character: Name, Gender, homeworld, and other if it is necessary</li>
+            <li>starship: Name, model, manufacturer and other if it is necessary</li>
+        </ul>
+        <p>Create a report about characters who are using ships with the most (top 10) weight of lading</p>
+    </div>
 {% endblock %}

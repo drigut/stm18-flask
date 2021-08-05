@@ -7,3 +7,4 @@ venv
 *.iml
 *~
 /database.db
+/database.db-journal

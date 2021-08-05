@@ -3,10 +3,24 @@
 
 import os
 import sqlite3
+from datetime import time
 
-from flask import Flask, request, render_template, send_from_directory, url_for, flash, redirect
+import requests
+
+from flask import Flask, request, render_template, send_from_directory, url_for, flash, redirect, json, Response, \
+    jsonify
 from flask_bootstrap import Bootstrap
 from werkzeug.exceptions import abort
+
+PEOPLE = 'https://swapi.dev/api/people/'
+# PLANETS = 'https://swapi.dev/api/planets/'
+# STARSHIPS = 'https://swapi.dev/api/starships/'
+
+
+def get_value(req):
+    jsonData = json.dumps(requests.get(req).json())
+    return json.loads(jsonData)
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
@@ -36,16 +50,51 @@ def favicon():
 
 @app.route('/')
 def index():
+    return render_template('index.html')
+
+
+@app.route('/update')
+def update():
+    connection = sqlite3.connect('database.db')
+
+    with open('schema.sql') as f:
+        connection.executescript(f.read())
+
+    cur = connection.cursor()
+    count = get_value(PEOPLE)["count"]
+
+    while count > 0:
+        try:
+            name = get_value(PEOPLE + str(count))["name"]
+            gender = get_value(PEOPLE + str(count))["gender"]
+            homeworld = get_value(get_value(PEOPLE + str(count))["homeworld"])["name"]
+            # starships = [{'name': get_value(item)["name"],
+            #             'model': get_value(item)["model"],
+            #             'manufacturer': get_value(item)["manufacturer"],
+            #             'cargo_capacity': get_value(item)["cargo_capacity"]}
+            #            for item in get_value(key + str(count))["starships"]])
+
+            cur.execute("INSERT INTO PEOPLE (NAME, GENDER, HOMEWORLD) VALUES (?, ?, ?)",
+                        (name, gender, homeworld))
+
+            count -= 1
+
+        except KeyError:
+            count -= 1
+            pass
+
+    connection.commit()
+    connection.close()
+
+    return render_template('update.html')
+
+
+@app.route('/characters')
+def characters():
     conn = get_db_connection()
     characters = conn.execute('SELECT * FROM PEOPLE').fetchall()
     conn.close()
-    return render_template('index.html', characters=characters)
-
-
-@app.route('/<int:character_id>')
-def character(character_id):
-    character = get_character(character_id)
-    return render_template('character.html', character=character)
+    return render_template('characters.html', characters=characters)
 
 
 @app.route('/create', methods=('GET', 'POST'))
@@ -85,7 +134,7 @@ def edit(id):
                          (name, gender, homeworld, id))
             conn.commit()
             conn.close()
-            return redirect(url_for('index'))
+            return redirect(url_for('characters'))
 
     return render_template('edit.html', character=character)
 
@@ -98,7 +147,7 @@ def delete(id):
     conn.commit()
     conn.close()
     flash('"{}" was successfully deleted!'.format(character['name']))
-    return redirect(url_for('index'))
+    return redirect(url_for('characters'))
 
 
 if __name__ == '__main__':

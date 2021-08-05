@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Gender</th>
+                <th scope="col">Homeworld</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for character in characters %}
+            <tr>
+                {% for item in character %}
+                <td>{{ item }}</td>
+                {% endfor %}
+                <td>
+                    <a href="{{ url_for('edit', id=character['id']) }}">
+                    <span class="btn btn-primary">Edit</span></a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+{% endblock %}

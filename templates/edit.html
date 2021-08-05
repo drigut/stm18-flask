@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1>{% block title %} Edit "{{ character['name'] }}" {% endblock %}</h1>
-
+<br>
 <form method="post">
     <div class="form-group">
         <label for="title">Name</label>
@@ -10,21 +10,21 @@
                class="form-control"
                value="{{ request.form['name'] or character['name'] }}"/>
     </div>
-
+    <br>
     <div class="form-group">
         <label for="title">Gender</label>
         <input type="text" name="Gender" placeholder="Post title"
                class="form-control"
                value="{{ request.form['gender'] or character['gender'] }}"/>
     </div>
-
+    <br>
     <div class="form-group">
         <label for="title">Homeworld</label>
         <input type="text" name="title" placeholder="Planet"
                class="form-control"
                value="{{ request.form['homeworld'] or character['homeworld'] }}"/>
     </div>
-
+    <br>
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Submit</button>
     </div>
