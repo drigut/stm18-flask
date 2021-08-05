@@ -10,3 +10,4 @@ venv
 /database.db
 /database.db-journal
 requirements.txt
+/sql/data/

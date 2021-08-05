@@ -5,7 +5,7 @@ services:
     image: postgres:12.7
     container_name: postgres
     volumes:
-    - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    - ./data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
       timeout: 45s
@@ -13,10 +13,8 @@ services:
       retries: 10
     restart: always
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=password
-      - APP_DB_USER=docker
-      - APP_DB_PASS=docker
-      - APP_DB_NAME=docker
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRESS_DB=docker
     ports:
       - 5432:5432
