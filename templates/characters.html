@@ -4,21 +4,22 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                <th scope="col">ID</th>
                 <th scope="col">Name</th>
-                <th scope="col">Gender</th>
-                <th scope="col">Homeworld</th>
+                <th scope="col">Model</th>
+                <th scope="col">Manufacturer</th>
+                <th scope="col">Lading</th>
+                <th scope="col">Pilot</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
         {% for character in characters %}
             <tr>
-                {% for item in character %}
-                <td>{{ item }}</td>
+                {% for item in character[1::] %}
+                    <td>{{ item }}</td>
                 {% endfor %}
                 <td>
-                    <a href="{{ url_for('edit', id=character['id']) }}">
+                    <a href="{{ url_for('edit', id=character[0]) }}">
                     <span class="btn btn-primary">Edit</span></a>
                 </td>
             </tr>
